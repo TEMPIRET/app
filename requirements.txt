@@ -1,0 +1,9 @@
+Flask
+Flask-CORS
+python-dotenv
+langchain
+langgraph
+langchain_community
+langchain_text_splitters
+tavily-python
+langchain_groq

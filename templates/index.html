@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teaching Webpage</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://unpkg.com/cytoscape@latest/dist/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/elkjs/lib/elk.bundled.js"></script>
+    <script src="https://unpkg.com/cytoscape-elk@latest/dist/cytoscape-elk.js"></script> 
+
+</head>
+<body>
+
+    <nav>
+        <button id="hamburger-button">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div id="llm-panel">
+            <h2>LLM Chat</h2>
+            <div id="chat-area"></div>
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="Type your message...">
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <h1>Concept Map Area</h1>
+        <div id="cy"></div>
+        <p>Your interactive concept map will go here.</p>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
