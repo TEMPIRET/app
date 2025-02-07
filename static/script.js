@@ -79,12 +79,15 @@ function updateConceptMap(conceptMapData) {
         }
     });
 
-    const layout = cy.layout({
-        name: 'elk',
-        algorithm: 'mrtree',
-        direction: 'DOWN'
-    });
-    layout.run();
+    cy.layout({
+        name: 'dagre',
+        rankDir: 'TB',
+        nodeSep: 75,
+        rankSep: 75,
+        animate: true,
+        animationDuration: 500,
+        animationEasing: 'ease-out',
+    }).run();
     cy.fit();
     cy.center();
 }
@@ -158,9 +161,10 @@ domReady(function () {
                 }
             ],
             layout: {
-                name: 'elk',
-                algorithm: 'mrtree',
-                direction: 'DOWN'
+                name: 'dagre',
+                rankDir: 'TB',
+                nodeSep: 75,
+                rankSep: 75
             },
             zoom: 1,
             pan: { x: 0, y: 0 },
