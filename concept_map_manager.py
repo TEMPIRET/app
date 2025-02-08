@@ -7,15 +7,13 @@ Original file is located at
     https://colab.research.google.com/drive/11nCLQozlIo_DvDgHJ5NVCAl5BTSxMlMG
 """
 
-import os
+import standard_conceptmaps
 from langchain_groq import ChatGroq
 
 llm = ChatGroq(model="llama-3.3-70b-versatile")
 
-from typing import Annotated, Sequence, List
+from typing import Annotated, List
 from typing_extensions import TypedDict
-
-from langchain_core.messages import BaseMessage
 
 from langgraph.graph.message import add_messages
 
@@ -50,12 +48,10 @@ def update_teaching_history(state: AgentState) -> AgentState:
     return state
 
 import json
-from typing import Annotated, Literal, Sequence
+from typing import Annotated, Literal
 from typing_extensions import TypedDict
 
-from langchain import hub
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
-from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 
 from pydantic import BaseModel, Field
@@ -192,86 +188,34 @@ def update_conceptmap(state: AgentState):
 
     # Prompt
     prompt = PromptTemplate(
-        template="""You are an AI concept map manager. Your task is to extract one hierarchical relationship from a tutoring dialogue excerpt, focusing *only* on the tutor's output. Follow these instructions exactly:
+        template="""Given the standardized concept map [MAP], the student's current concept map [STUDENT_MAP], the student-tutor interaction transcript [TRANSCRIPT], and the current topic [TOPIC], determine which new connections from the standardized map the student has demonstrated understanding of.
+Anytime the [STUDENT_MAP] or [TRANSCRIPT] is empty, that means the teachings session is about to begin.
+Always use "null" instead of "None" when needed.
 
-1. **Input Structure**:
-   - You will be provided with:
-     - **Previous Turns (teaching_history)**: This includes both tutor and learner turns.
-     - **Current Excerpt (teachings)**: A short text excerpt containing the tutor’s output.
-     - **Current Concept Map**: An existing hierarchical concept map.
-       - **Important**: The current concept map must always have exactly one root node (the most general concept). If no root exists yet, you must create one from the first inferred concept.
+Return ONLY a Python dictionary where:
 
-2. **What to Extract**:
-   - **Concepts & Hierarchical Relationship**:
-     - Identify one core concept from the tutor’s output—even if it is not explicitly stated—and its direct parent.
-     - **Inference**: If the tutor does not explicitly mention the concept, infer it from context (e.g., from keywords, classifications, or divisions used by the tutor).
-   - **Single Root Rule**:
-     - There must be only one root node (a concept with no parent).
-     - If the current excerpt introduces a new concept that cannot be attached as a child of an already existing concept in the map, attach it to the existing root node.
-     - If this is the very first concept being introduced (across all turns), output it as the root node (set both `"Relationship"` and `"ParentNode"` to `null`).
+*   Keys are 'NodeName', 'ParentNode', and 'Relationship'.
+*   Each dictionary represents a single connection to be added to the student's concept map.
+*   'NodeName' is the name of the node being connected.
+*   'ParentNode' is the name of the parent node.
+*   'Relationship' is the type of relationship between the nodes (e.g., "is a," "part of," "causes," etc.).  If the relationship is not explicitly stated in the transcript, infer the most appropriate one from the standardized map.
 
-3. **Output Requirements**:
-   - Output a single Python dictionary with exactly these keys:
-     - `"NodeName"`: The name of the more specific (child) concept.
-     - `"Relationship"`: For all concepts after the very first, this must be `"subclass of"`. For the very first (root) concept, set this to `null`.
-     - `"ParentNode"`: The name of the more general concept (or `null` for the root).
-   - **Output only one dictionary per call.** If the current excerpt does not contain any explicit or implicit hierarchical relationship, or if no new concept can be confidently inferred, return an empty dictionary (`{{}}`).
+If no new connections are identified, return an empty dictionary: `{{}}`.  Do not return any other text or explanations.  Focus on generating the dictionary.
 
-4. **Handling Hierarchical Relationships & Inference**:
-   - **Explicit Relationships**: If the tutor clearly states a division, classification, or part-whole relationship (e.g., "divided into", "classified into", "consists of"), use that to create a `subclass of` relationship.
-   - **Implicit Relationships**: If the dialogue does not explicitly state the concept but implies it through context or phrasing, infer the concept and its relationship.
-   - **Attaching to the Root**: If no clear parent exists within the current concept map (or the tutor does not provide one), attach the inferred concept as a child of the existing single root node.
-   - If ambiguity exists or the relationship is non-hierarchical, return an empty dictionary (`{{}}`).
+Example:
 
-5. **Formatting & Style**:
-   - Your output must be a plain text Python dictionary. Do not include additional text, markdown formatting, or commentary.
-   - Strictly follow this format:
-     ```
-     {{"NodeName": "<node>", "Relationship": "<relationship>", "ParentNode": "<parent>"}}
-     ```
-     Replace `<node>`, `<relationship>`, and `<parent>` with the appropriate values (or `null` as specified).
+Standardized Map: [{{'NodeName': 'Photosynthesis', 'ParentNode': 'Plant', 'Relationship': 'is a process of'}}, {{'NodeName': 'Chlorophyll', 'ParentNode': 'Photosynthesis', 'Relationship': 'is needed for'}}]
 
-6. **Examples** (for Reference Only):
+Transcript: "Student: So, plants use chlorophyll to make food, right? Tutor: Exactly! And what's the name of that process? Student: Photosynthesis!"
 
-   - **Example 1 (First Concept)**:  
-     Previous Turn:  
-     `Tutor: "Let's start with the cell."`  
-     Output:  
-     `{{"NodeName": "cell", "Relationship": null, "ParentNode": null}}`
-
-   - **Example 2 (Explicit Hierarchical Relationship)**:  
-     Previous Turn:  
-     `Tutor: "Let's start with the cell."`  
-     Current Excerpt:  
-     `Tutor: "Cells are broadly classified into prokaryotic and eukaryotic cells."`  
-     Output (first call):  
-     `{{"NodeName": "prokaryotic cell", "Relationship": "subclass of", "ParentNode": "cell"}}`
-     *(On a subsequent call, output for "eukaryotic cell".)*
-
-   - **Example 3 (Implicit Inference and Single Root)**:  
-     Assume the existing concept map has a root node `"cell"`.  
-     Previous Turn:  
-     `Tutor: "Now, think about the powerhouse of the cell."`  
-     Even if "mitochondria" isn’t explicitly highlighted as a new concept, infer it from context.  
-     Output:  
-     `{{"NodeName": "mitochondria", "Relationship": "subclass of", "ParentNode": "cell"}}`
-   
-   - **Example 4 (Non-Hierarchical, Return Empty)**:  
-     Previous Turn:  
-     `Tutor: "Cells need energy."`  
-     Current Excerpt:  
-     `Tutor: "Cells use energy to function, just like a car uses gasoline."`  
-     Output:  
-     `{{}}`
-     
-7. **Final Step**:
-   - Process the current excerpt with the provided context and output a single Python dictionary as described.
+Output: {{'NodeName': 'Photosynthesis', 'ParentNode': 'Plant', 'Relationship': 'is a process of'}}
 
 Input Variables:
-- Previous Turns (teaching_history): {teaching_history}
-- Current Excerpt (teachings): {teachings}
-- Current Concept Map: {concept_map}""",
-        input_variables=["teachings", "topic", "concept_map", "teaching_history"],
+- [MAP]: \n\n {standard_conceptmap} \n\n
+- [TRANSCRIPT]: \n\n {teaching_history} \n\n
+- [STUDENT_MAP]: \n\n {concept_map} \n\n
+- [TOPIC]: {topic}""",
+        input_variables=["standard_conceptmap", "topic", "concept_map", "teaching_history"],
     )
 
     # Chain
@@ -282,7 +226,8 @@ Input Variables:
         "teachings": state["teachings"],
         "topic": state["topic"],
         "concept_map": state["concept_map"],
-        "teaching_history": state["teaching_history"]
+        "teaching_history": state["teaching_history"],
+        "standard_conceptmap": standard_conceptmaps.biogeochemical_cycles
         }
     )
 
