@@ -201,6 +201,8 @@ Return ONLY a Python dictionary where:
 *   'Relationship' is the type of relationship between the nodes (e.g., "is a," "part of," "causes," etc.).  If the relationship is not explicitly stated in the transcript, infer the most appropriate one from the standardized map.
 
 If no new connections are identified, return an empty dictionary: `{{}}`.  Do not return any other text or explanations.  Focus on generating the dictionary.
+Always output updates from top to bottom. Do not bypass a specific node.
+Always return your output as a python dictionary, not a list of dictionaries.
 
 Example:
 
