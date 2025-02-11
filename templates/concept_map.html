@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Concept Map - Teaching Website{% endblock %}
+
+{% block extra_css %}
+    <!-- Add any page-specific CSS here -->
+{% endblock %}
+
+{% block content %}
+    <div class="header-container">
+        <h1>Concept Map Area</h1>
+        <a href="{{ url_for('resources') }}" class="resources-btn">
+            <i class="fas fa-book"></i>
+            Resources
+        </a>
+    </div>
+    <div id="cy"></div>
+    <p>Your interactive concept map will go here.</p>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
+    <script src="https://unpkg.com/cytoscape-dagre@2.3.0/cytoscape-dagre.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}

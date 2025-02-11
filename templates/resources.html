@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Resources - Teaching Website{% endblock %}
+
+{% block extra_css %}
+    <!-- Add any page-specific CSS here -->
+{% endblock %}
+
+{% block content %}
+    <div class="header-container">
+        <h1>Biogeochemical Cycles</h1>
+        <a href="{{ url_for('concept_map') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Concept Map
+        </a>
+    </div>
+    
+    <!-- Filter controls will be inserted here by JavaScript -->
+    <div id="cy"></div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
+    <script src="https://unpkg.com/cytoscape-dagre@2.3.0/cytoscape-dagre.js"></script>
+    <!-- We'll create a separate JS file for the resources page -->
+    <script src="{{ url_for('static', filename='js/resources.js') }}"></script>
+{% endblock %}

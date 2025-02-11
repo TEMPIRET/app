@@ -13,9 +13,13 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 CORS(app)
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+@app.route('/')
+def concept_map():
+    return render_template('concept_map.html')
+
+@app.route('/resources')
+def resources():
+    return render_template('resources.html')
 
 @app.route("/ask", methods=["POST"])
 def answer_question():

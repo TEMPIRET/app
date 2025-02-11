@@ -64,6 +64,36 @@ h1 {
     font-weight: 700;
 }
 
+/* Header container for buttons */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Resources button styling */
+.resources-btn, .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background-color: #2563eb;
+    color: #ffffff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.resources-btn:hover, .back-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.resources-btn i, .back-btn i {
+    font-size: 1rem;
+}
+
 /* Filter controls */
 .filter-controls {
     background-color: #ffffff;
@@ -235,6 +265,58 @@ nav.open #llm-panel {
     background-color: #1d4ed8;
 }
 
+/* Resources page styling */
+.resources-content {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.resource-card {
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.resource-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.resource-card h3 {
+    color: #1a1f2d;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+}
+
+.resource-card p {
+    color: #64748b;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+}
+
+.resource-link {
+    display: inline-block;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.resource-link:hover {
+    text-decoration: underline;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 8px;
@@ -288,6 +370,16 @@ nav.open #llm-panel {
     .input-area {
         padding: 0.75rem;
     }
+
+    .header-container {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .resources-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Small screen adjustments */
@@ -314,3 +406,4 @@ nav.open #llm-panel {
         padding: 0.5rem;
     }
 }
+
