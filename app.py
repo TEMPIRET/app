@@ -14,7 +14,14 @@ app.secret_key = os.urandom(24)
 CORS(app)
 
 @app.route('/')
+def entry():
+    return render_template('entry.html')
+
+@app.route('/concept_map')
 def concept_map():
+    course = request.args.get('course')
+    topic = request.args.get('topic')
+    # You can use these parameters to load specific content
     return render_template('concept_map.html')
 
 @app.route('/resources')

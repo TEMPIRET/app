@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Course Selection{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/entry.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div id="course-container" class="selection-container">
+  <h1>Select a Course</h1>
+  <div class="grid-container">
+    {% for course in courses %}
+      <div class="card" data-id="{{ course.id }}">
+        <h2>{{ course.code }}</h2>
+        <p>{{ course.name }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div id="topic-container" class="selection-container" style="display:none">
+  <h1>Select a Topic for <span id="selected-course"></span></h1>
+  <button id="back-button"><i class="fas fa-arrow-left"></i> Back</button>
+  <div id="topics-grid" class="grid-container"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/data.js') }}"></script>
+<script src="{{ url_for('static', filename='js/entry.js') }}"></script>
+{% endblock %}
